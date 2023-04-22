@@ -1,11 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
 import './App.css'
+import { axiosGet } from './wrap/axios'
 
 function App() {
+    useEffect(() => {
+        let ignore = false
+        const controller = new AbortController()
+        const aff = async () => {
+            const response = await axiosGet(
+                'https://opensky-network.org/api/states/all',
+                { signal: controller.signal }
+            )
+            if (!ignore) console.dir(response)
+        }
+        aff().catch((err) => {
+            // TODO: only ignore cancellation errors (if applicable)
+            if (!ignore) console.error(err)
+        })
+        return () => {
+            ignore = true
+            controller.abort()
+        }
+    }, [])
     const [count, setCount] = useState(0)
 
     return (
