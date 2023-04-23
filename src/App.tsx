@@ -10,6 +10,7 @@ import {
     map,
     switchMap,
 } from 'rxjs'
+import { sampleOpenSkyResponse } from './sample'
 import { axiosGet } from './wrap/axios'
 
 import reactLogo from './assets/react.svg'
@@ -49,7 +50,11 @@ const axiosGet$ = (url: string) => {
     })
 }
 
-function App() {
+interface App {
+    useSample: boolean
+}
+
+function App({ useSample: useSampleData }: App) {
     const DOCUMENT = document
     const UPDATE_INTERVAL_MS = 1000 * 10
 
@@ -60,7 +65,9 @@ function App() {
         ]).pipe(
             filter(([, visibility]) => visibility === 'visible'),
             switchMap(() =>
-                axiosGet$('https://opensky-network.org/api/states/all')
+                useSampleData
+                    ? from([sampleOpenSkyResponse()])
+                    : axiosGet$('https://opensky-network.org/api/states/all')
             )
         )
         const subscription = tick$.subscribe({
