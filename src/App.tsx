@@ -1,31 +1,78 @@
 import { useEffect, useState } from 'react'
+import {
+    Observable,
+    combineLatest,
+    concat,
+    filter,
+    from,
+    fromEvent,
+    interval,
+    map,
+    switchMap,
+} from 'rxjs'
+import { axiosGet } from './wrap/axios'
 
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
 import './App.css'
-import { axiosGet } from './wrap/axios'
+
+const interval$ = (updateIntervalMs: number) => {
+    const initialImmediateTick$ = from(['initial'])
+    const subsequentTicks$ = interval(updateIntervalMs)
+    return concat(initialImmediateTick$, subsequentTicks$)
+}
+
+const documentVisibility$ = (doc: Document) => {
+    const initialVisibility$ = from([doc.visibilityState])
+    const subsequentVisibility$ = fromEvent(doc, 'visibilitychange').pipe(
+        map(() => document.visibilityState)
+    )
+    return concat(initialVisibility$, subsequentVisibility$)
+}
+
+const axiosGet$ = (url: string) => {
+    const controller = new AbortController()
+    const response = axiosGet(url, {
+        signal: controller.signal,
+    })
+    return new Observable((subscriber) => {
+        response
+            .then((response) => {
+                subscriber.next(response)
+                subscriber.complete()
+            })
+            .catch((reason) => {
+                subscriber.error(reason)
+            })
+        return () => controller.abort()
+    })
+}
 
 function App() {
+    const DOCUMENT = document
+    const UPDATE_INTERVAL_MS = 1000 * 10
+
     useEffect(() => {
-        let ignore = false
-        const controller = new AbortController()
-        const aff = async () => {
-            const response = await axiosGet(
-                'https://opensky-network.org/api/states/all',
-                { signal: controller.signal }
+        const tick$ = combineLatest([
+            interval$(UPDATE_INTERVAL_MS),
+            documentVisibility$(DOCUMENT),
+        ]).pipe(
+            filter(([, visibility]) => visibility === 'visible'),
+            switchMap(() =>
+                axiosGet$('https://opensky-network.org/api/states/all')
             )
-            if (!ignore) console.dir(response)
-        }
-        aff().catch((err) => {
-            // TODO: only ignore cancellation errors (if applicable)
-            if (!ignore) console.error(err)
+        )
+        const subscription = tick$.subscribe({
+            next: console.log,
+            error: console.error,
         })
+
         return () => {
-            ignore = true
-            controller.abort()
+            subscription.unsubscribe()
         }
     }, [])
+
     const [count, setCount] = useState(0)
 
     return (
