@@ -1,4 +1,6 @@
-export const sampleOpenSkyResponse = () => ({
+import { OpenSkyResponse } from '../opensky/response'
+
+export const sampleOpenSkyResponse = (): OpenSkyResponse => ({
     time: 1682259375,
     states: [
         [
