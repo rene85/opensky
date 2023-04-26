@@ -10,6 +10,7 @@ const indices = () => ({
     icao24: 0,
     callsign: 1,
     originCountry: 2,
+    verticalRate: 11,
     geoAltitude: 13,
 })
 
@@ -22,6 +23,9 @@ export const callsign = (s: StateVector) =>
 
 export const originCountry = (s: StateVector) =>
     s[indices().originCountry] as string
+
+export const verticalRate = (s: StateVector) =>
+    s[indices().verticalRate] as float | null
 
 export const geoAltitude = (s: StateVector) =>
     s[indices().geoAltitude] as float | null

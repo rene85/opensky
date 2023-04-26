@@ -5,6 +5,7 @@ import {
     geoAltitude,
     id,
     originCountry,
+    verticalRate,
 } from '../opensky/stateVector'
 import {
     emptyMap,
@@ -66,9 +67,10 @@ export const flightsPerAltitudeSlice = (
             (flightsPerAltitudeSlice, flight) =>
                 updateWithDefaultMUTATE(
                     flightsPerAltitudeSlice,
-                    Math.floor(
-                        (geoAltitude(flight) as number) / sliceSizeMeters
-                    ) * sliceSizeMeters,
+                    altitudeLayer(
+                        geoAltitude(flight) as number,
+                        sliceSizeMeters
+                    ).bottom,
                     (flightsInSlice) => [...flightsInSlice, flight],
                     []
                 ),
@@ -76,3 +78,45 @@ export const flightsPerAltitudeSlice = (
         )
     return foo
 }
+
+export const willSwitchLayer = (
+    states: StateVector[],
+    layerSize: number, // meters
+    timespan: number // seconds
+): StateVector[] =>
+    states
+        .filter(
+            (flight) =>
+                geoAltitude(flight) !== null && verticalRate(flight) !== null
+        )
+        .filter(
+            (flight) =>
+                !inSameLayer(
+                    [
+                        geoAltitude(flight) as number,
+                        (verticalRate(flight) as number) * timespan +
+                            (geoAltitude(flight) as number),
+                    ],
+                    layerSize
+                )
+        )
+
+interface AltitudeLayer {
+    bottom: number // meters, inclusive
+    top: number // meters, exclusive
+}
+
+const altitudeLayer = (altitude: number, layerSize: number): AltitudeLayer => {
+    const bottom = Math.floor(altitude / layerSize) * layerSize
+    const top = bottom + layerSize
+    return { top, bottom }
+}
+
+const layerEq = (layers: AltitudeLayer[]) =>
+    layers.filter(
+        (layer) =>
+            layers[0].bottom === layer.bottom && layers[0].top === layer.top
+    ).length === layers.length
+
+const inSameLayer = (altitudes: number[], layerSize: number) =>
+    layerEq(altitudes.map((alt) => altitudeLayer(alt, layerSize)))

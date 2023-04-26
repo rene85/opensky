@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { flightsPerAltitudeSlice, topOriginCountries } from './model'
+import {
+    flightsPerAltitudeSlice,
+    topOriginCountries,
+    willSwitchLayer,
+} from './model'
 
 describe('show top 3 countries of origin', () => {
     const states = [
@@ -37,4 +41,17 @@ describe('show which flights are part of an altitude slice', () => {
             [42 * km, [b2, c3, h8]],
             [1337 * km, [d4, e5, g7, i9]],
         ]))
+})
+
+describe('show flights that will switch altitude layer soon', () => {
+    const a1 = ['A', '1', 2, 3, 4, 5, 6, 7, 8, 9, 10, 50, 12, 42500]
+    const b2 = ['B', '2', 2, 3, 4, 5, 6, 7, 8, 9, 10, -50, 12, 42500]
+    const c3 = ['C', '3', 2, 3, 4, 5, 6, 7, 8, 9, 10, -50, 12, 42499]
+    const states = [a1, b2, c3]
+
+    const layerSize = 1000
+    const timespan = 10
+
+    test('layers of 1 km', () =>
+        expect(willSwitchLayer(states, layerSize, timespan)).to.eql([a1, c3]))
 })
