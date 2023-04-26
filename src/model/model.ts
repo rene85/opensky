@@ -12,7 +12,7 @@ type AircraftIdentityString = string
 type OriginCountry = string
 
 export interface Model {
-    callsigns: [Identifier, string][]
+    callsigns: [Identifier, string | null][]
 }
 
 export const init = (): Model => ({
