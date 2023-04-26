@@ -2,12 +2,15 @@ import { identifier } from '../model/identifier'
 
 export type StateVector = VectorElement[]
 
-type VectorElement = boolean | number | string | null
+type float = number
+
+type VectorElement = boolean | float | string | null
 
 const indices = () => ({
     icao24: 0,
     callsign: 1,
     originCountry: 2,
+    geoAltitude: 13,
 })
 
 export const id = (s: StateVector) => identifier(`${icao24(s)}:${callsign(s)}`)
@@ -19,3 +22,6 @@ export const callsign = (s: StateVector) =>
 
 export const originCountry = (s: StateVector) =>
     s[indices().originCountry] as string
+
+export const geoAltitude = (s: StateVector) =>
+    s[indices().geoAltitude] as float | null

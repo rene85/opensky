@@ -2,10 +2,15 @@ import { OpenSkyResponse } from '../opensky/response'
 import {
     StateVector,
     callsign,
+    geoAltitude,
     id,
     originCountry,
 } from '../opensky/stateVector'
-import { emptyMap, updateOrDefaultMUTATE } from '../util/map'
+import {
+    emptyMap,
+    updateOrDefaultMUTATE,
+    updateWithDefaultMUTATE,
+} from '../util/map'
 import { Identifier } from './identifier'
 
 type AircraftIdentityString = string
@@ -49,4 +54,25 @@ export const topOriginCountries = (
         .sort(([, firstCount], [, secondCount]) => secondCount - firstCount)
         .slice(0, top)
         .map(([country]) => country)
+}
+
+export const flightsPerAltitudeSlice = (
+    states: StateVector[],
+    sliceSizeMeters: number
+): Map<number, StateVector[]> => {
+    const foo = states
+        .filter((flight) => geoAltitude(flight) !== null)
+        .reduce<Map<number, StateVector[]>>(
+            (flightsPerAltitudeSlice, flight) =>
+                updateWithDefaultMUTATE(
+                    flightsPerAltitudeSlice,
+                    Math.floor(
+                        (geoAltitude(flight) as number) / sliceSizeMeters
+                    ) * sliceSizeMeters,
+                    (flightsInSlice) => [...flightsInSlice, flight],
+                    []
+                ),
+            emptyMap<number, StateVector[]>()
+        )
+    return foo
 }
