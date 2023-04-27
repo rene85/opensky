@@ -1,5 +1,6 @@
 import './App.css'
 
+import { Button } from '@mui/material'
 import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 import {
@@ -93,6 +94,7 @@ function App({ useSample: useSampleData }: App) {
 
     return (
         <>
+            <Button variant="contained">Hello World</Button>
             {model.callsigns.map(([id, callsign]) => (
                 <p key={id.string}>{callsign}</p>
             ))}
