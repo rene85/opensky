@@ -24,3 +24,13 @@ dist-ssr
 *.sw?
 
 *~
+
+# Scala
+/.bloop
+/.bsp
+/.metals
+/project/.bloop
+/project/project
+/project/target
+/project/metals.sbt
+/target
