@@ -60,8 +60,8 @@ export const topOriginCountries = (
 export const flightsPerAltitudeSlice = (
     states: StateVector[],
     sliceSizeMeters: number
-): Map<number, StateVector[]> => {
-    const foo = states
+): Map<number, StateVector[]> =>
+    states
         .filter((flight) => geoAltitude(flight) !== null)
         .reduce<Map<number, StateVector[]>>(
             (flightsPerAltitudeSlice, flight) =>
@@ -76,8 +76,6 @@ export const flightsPerAltitudeSlice = (
                 ),
             emptyMap<number, StateVector[]>()
         )
-    return foo
-}
 
 export const willSwitchLayer = (
     states: StateVector[],
