@@ -1,9 +1,34 @@
+import { getUnixTime } from 'date-fns'
 import { describe, expect, test } from 'vitest'
+import { utcDate } from '../util/date'
 import {
     flightsPerAltitudeSlice,
+    flightsPerHour,
     topOriginCountries,
     willSwitchLayer,
 } from './model'
+
+describe('show number of flights per timespan', () => {
+    const a1 = ['A', '1', 2, 3, getUnixTime(utcDate([2023, 4, 27, 0, 0]))]
+    const b2 = ['B', '2', 2, 3, getUnixTime(utcDate([2023, 4, 27, 1, 59]))]
+    const c3 = ['C', '3', 2, 3, getUnixTime(utcDate([2023, 4, 27, 0, 59]))]
+    const d4 = ['D', '4', 2, 3, getUnixTime(utcDate([2023, 4, 27, 1, 0]))]
+    const e5 = ['E', '5', 2, 3, getUnixTime(utcDate([2023, 4, 27, 1, 42]))]
+    const f6 = ['F', '6', 2, 3, getUnixTime(utcDate([2023, 4, 27, 15, 32]))]
+    const g7 = ['G', '7', 2, 3, getUnixTime(utcDate([2023, 4, 25, 13, 37]))]
+    const h8 = ['H', '8', 2, 3, getUnixTime(utcDate([2023, 4, 27, 15, 48]))]
+    const i9 = ['I', '9', 2, 3, getUnixTime(utcDate([2023, 1, 16, 8, 32]))]
+    const states = [a1, b2, c3, d4, e5, f6, g7, h8, i9]
+
+    test('per hour', () =>
+        expect(Array.from(flightsPerHour(states))).to.eql([
+            [utcDate([2023, 4, 27, 0, 0]), [a1, c3]],
+            [utcDate([2023, 4, 27, 1, 0]), [b2, d4, e5]],
+            [utcDate([2023, 4, 27, 15, 0]), [f6, h8]],
+            [utcDate([2023, 4, 25, 13, 0]), [g7]],
+            [utcDate([2023, 1, 16, 8, 0]), [i9]],
+        ]))
+})
 
 describe('show top 3 countries of origin', () => {
     const states = [

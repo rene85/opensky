@@ -1,9 +1,11 @@
+import { fromUnixTime, getUnixTime, startOfHour } from 'date-fns'
 import { OpenSkyResponse } from '../opensky/response'
 import {
     StateVector,
     callsign,
     geoAltitude,
     id,
+    lastContactDate,
     originCountry,
     verticalRate,
 } from '../opensky/stateVector'
@@ -55,6 +57,25 @@ export const topOriginCountries = (
         .sort(([, firstCount], [, secondCount]) => secondCount - firstCount)
         .slice(0, top)
         .map(([country]) => country)
+}
+
+export const flightsPerHour = (
+    states: StateVector[]
+): Map<Date, StateVector[]> => {
+    const map = states.reduce(
+        (flightsPerHour, flight) =>
+            updateWithDefaultMUTATE(
+                flightsPerHour,
+                getUnixTime(startOfHour(lastContactDate(flight))),
+                (flightsInHour) => [...flightsInHour, flight],
+                []
+            ),
+        emptyMap<number, StateVector[]>()
+    )
+    const entries: [Date, StateVector[]][] = Array.from(map).map(
+        ([timestamp, stateVectors]) => [fromUnixTime(timestamp), stateVectors]
+    )
+    return new Map(entries)
 }
 
 export const flightsPerAltitudeSlice = (
