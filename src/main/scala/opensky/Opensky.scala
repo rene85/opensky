@@ -2,28 +2,27 @@ package opensky
 
 import org.scalajs.dom
 
-import scala.scalajs.js
-import scala.scalajs.js.annotation.*
+import com.raquo.laminar.api.L.{*, given}
 
 @main
-def OpenSky(): Unit =
-    dom.document.querySelector("#scala-root").innerHTML = s"""
-    <div>
-      <h1>Hello Scala.js!</h1>
-      <div class="card">
-        <button id="counter" type="button"></button>
-      </div>
-    </div>
-    """
+def LiveChart(): Unit =
+    renderOnDomContentLoaded(
+      dom.document.getElementById("scala-root"),
+      Main.appElement()
+    )
 
-    setupCounter(dom.document.getElementById("counter"))
+object Main:
+    def appElement(): Element =
+        div(
+          h1("Hello Laminar!"),
+          div(className := "card", counterButton())
+        )
 
-def setupCounter(element: dom.Element): Unit =
-    var counter = 0
-
-    def setCounter(count: Int): Unit =
-        counter = count
-        element.innerHTML = s"count is $counter"
-
-    element.addEventListener("click", e => setCounter(counter + 1))
-    setCounter(0)
+def counterButton(): Element =
+    val counter = Var(0)
+    button(
+      tpe := "button",
+      "count is ",
+      child.text <-- counter,
+      onClick --> { event => counter.update(c => c + 1) }
+    )
