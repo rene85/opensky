@@ -21,6 +21,7 @@ import { FlightsPerHourTable } from './view/flightsPerHourTable'
 import { TopCountriesOfOrigin } from './view/topCountriesOfOrigin'
 import { inflateViewmodel } from './viewmodel/viewmodel'
 import { axiosGet } from './wrap/axios'
+import { FlightsPerAltitudeTable } from './view/flightsPerAltitudeTable'
 
 const interval$ = (updateIntervalMs: number) => {
     const initialImmediateTick$ = from(['initial'])
@@ -99,6 +100,7 @@ function App({ useSample: useSampleData }: App) {
         <>
             <FlightsPerHourTable data={model.flightsPerHour} />
             <TopCountriesOfOrigin countries={model.topCountriesOfOrigin} />
+            <FlightsPerAltitudeTable data={model.flightsAtAltitude} />
         </>
     )
 }
