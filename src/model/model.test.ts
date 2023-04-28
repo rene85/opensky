@@ -79,13 +79,28 @@ describe('show which flights are part of an altitude slice', () => {
     const g7 = ['G', '7', 'JP', 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1337 * km + 1]
     const h8 = ['H', '8', 'NL', 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 42 * km]
     const i9 = ['I', '9', 'UK', 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1337 * km]
+
+    const a1moved = ['A', '1', 'JP', 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 44 * km]
+
     const states = [a1, b2, c3, d4, e5, f6, g7, h8, i9]
 
+    const duplicates = [a1, a1moved, b2]
+
     test('slices of 1 km', () =>
-        expect(Array.from(flightsPerAltitudeSlice(states, 1 * km))).to.eql([
+        expect(
+            Array.from(flightsPerAltitudeSlice(states, 1 * km)).reverse()
+        ).to.eql([
             [43 * km, [a1]],
             [42 * km, [b2, c3, h8]],
             [1337 * km, [d4, e5, g7, i9]],
+        ]))
+
+    test('count unique flights', () =>
+        expect(
+            Array.from(flightsPerAltitudeSlice(duplicates, 1 * km)).reverse()
+        ).to.eql([
+            [44 * km, [a1moved]],
+            [42 * km, [b2]],
         ]))
 })
 

@@ -80,7 +80,7 @@ export const flightsPerAltitudeSlice = (
     states: StateVector[],
     sliceSizeMeters: number
 ): Map<number, StateVector[]> =>
-    states
+    uniqueFlights([...states].reverse())
         .filter((flight) => geoAltitude(flight) !== null)
         .reduce<Map<number, StateVector[]>>(
             (flightsPerAltitudeSlice, flight) =>
@@ -90,7 +90,7 @@ export const flightsPerAltitudeSlice = (
                         geoAltitude(flight) as number,
                         sliceSizeMeters
                     ).bottom,
-                    (flightsInSlice) => [...flightsInSlice, flight],
+                    (flightsInSlice) => [flight, ...flightsInSlice],
                     []
                 ),
             emptyMap<number, StateVector[]>()
