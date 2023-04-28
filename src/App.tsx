@@ -18,6 +18,7 @@ import { sampleOpenSkyResponse } from './assets/sample'
 import { init, withGetAllStatesResponse } from './model/model'
 import { OpenSkyResponse } from './opensky/response'
 import { FlightsPerHourTable } from './view/flightsPerHourTable'
+import { TopCountriesOfOrigin } from './view/topCountriesOfOrigin'
 import { inflateViewmodel } from './viewmodel/viewmodel'
 import { axiosGet } from './wrap/axios'
 
@@ -97,6 +98,7 @@ function App({ useSample: useSampleData }: App) {
     return (
         <>
             <FlightsPerHourTable data={model.flightsPerHour} />
+            <TopCountriesOfOrigin countries={model.topCountriesOfOrigin} />
         </>
     )
 }
