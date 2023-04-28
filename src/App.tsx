@@ -57,6 +57,21 @@ const axiosGet$ = (
     })
 }
 
+const BASE_URL = 'https://opensky-network.org/api/states/all'
+
+interface FmtUrl {
+    latitude: [number, number]
+    longitude: [number, number]
+}
+
+const fmtUrl = ({ latitude, longitude }: FmtUrl) => {
+    const lamin = Math.min(...latitude)
+    const lomin = Math.min(...longitude)
+    const lamax = Math.max(...latitude)
+    const lomax = Math.max(...longitude)
+    return `${BASE_URL}?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`
+}
+
 interface App {
     useSample: boolean
 }
@@ -64,6 +79,11 @@ interface App {
 function App({ useSample: useSampleData }: App) {
     const DOCUMENT = document
     const UPDATE_INTERVAL_MS = 1000 * 10
+
+    const COOR_NETHERLANDS_EAST = 7.3
+    const COOR_NETHERLANDS_SOUTH = 50.6
+    const COOR_NETHERLANDS_NORTH = 53.7
+    const COOR_NETHERLANDS_WEST = 3.2
 
     const inflateOptions = { pollIntervalMs: UPDATE_INTERVAL_MS }
 
@@ -79,7 +99,16 @@ function App({ useSample: useSampleData }: App) {
                 useSampleData
                     ? from([sampleOpenSkyResponse()])
                     : axiosGet$(
-                          'https://opensky-network.org/api/states/all'
+                          fmtUrl({
+                              latitude: [
+                                  COOR_NETHERLANDS_NORTH,
+                                  COOR_NETHERLANDS_SOUTH,
+                              ],
+                              longitude: [
+                                  COOR_NETHERLANDS_WEST,
+                                  COOR_NETHERLANDS_EAST,
+                              ],
+                          })
                       ).pipe(map((val) => val.data as OpenSkyResponse))
             ),
             scan(
