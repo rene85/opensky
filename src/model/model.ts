@@ -1,9 +1,10 @@
+import { fromUnixTime, getUnixTime, startOfHour } from 'date-fns'
 import { OpenSkyResponse } from '../opensky/response'
 import {
     StateVector,
-    callsign,
     geoAltitude,
     id,
+    lastContactDate,
     originCountry,
     verticalRate,
 } from '../opensky/stateVector'
@@ -12,17 +13,17 @@ import {
     updateOrDefaultMUTATE,
     updateWithDefaultMUTATE,
 } from '../util/map'
-import { Identifier } from './identifier'
+import { added } from '../util/set.effect'
 
-type AircraftIdentityString = string
 type OriginCountry = string
 
+// TODO: retain as little data in the model as possible
 export interface Model {
-    callsigns: [Identifier, string | null][]
+    states: StateVector[]
 }
 
 export const init = (): Model => ({
-    callsigns: [],
+    states: [],
 })
 
 // TODO: filter duplicate icao24
@@ -31,20 +32,15 @@ export const withGetAllStatesResponse = (
     response: OpenSkyResponse
 ): Model => ({
     ...m,
-    callsigns: response.states.map((state) => [id(state), callsign(state)]),
+    states: [...m.states, ...response.states],
 })
 
 export const topOriginCountries = (
     states: StateVector[],
     top: number
 ): string[] => {
-    const uniqueAircraft = states.reduce(
-        (uniqueAircraft, aircraft) =>
-            uniqueAircraft.set(id(aircraft).string, aircraft),
-        emptyMap<AircraftIdentityString, StateVector>()
-    )
     const countryCount = emptyMap<OriginCountry, number>()
-    for (const aircraft of uniqueAircraft.values())
+    for (const aircraft of uniqueFlights(states))
         updateOrDefaultMUTATE(
             countryCount,
             originCountry(aircraft),
@@ -57,11 +53,33 @@ export const topOriginCountries = (
         .map(([country]) => country)
 }
 
+export const flightsPerHour = (
+    states: StateVector[]
+): Map<Date, StateVector[]> => {
+    const map = states.reduce(
+        (flightsPerHour, flight) =>
+            updateWithDefaultMUTATE(
+                flightsPerHour,
+                getUnixTime(startOfHour(lastContactDate(flight))),
+                (flightsInHour) => [...flightsInHour, flight],
+                []
+            ),
+        emptyMap<number, StateVector[]>()
+    )
+    const entries: [Date, StateVector[]][] = Array.from(map).map(
+        ([timestamp, stateVectors]) => [
+            fromUnixTime(timestamp),
+            uniqueFlights(stateVectors),
+        ]
+    )
+    return new Map(entries)
+}
+
 export const flightsPerAltitudeSlice = (
     states: StateVector[],
     sliceSizeMeters: number
-): Map<number, StateVector[]> => {
-    const foo = states
+): Map<number, StateVector[]> =>
+    uniqueFlights([...states].reverse())
         .filter((flight) => geoAltitude(flight) !== null)
         .reduce<Map<number, StateVector[]>>(
             (flightsPerAltitudeSlice, flight) =>
@@ -71,13 +89,11 @@ export const flightsPerAltitudeSlice = (
                         geoAltitude(flight) as number,
                         sliceSizeMeters
                     ).bottom,
-                    (flightsInSlice) => [...flightsInSlice, flight],
+                    (flightsInSlice) => [flight, ...flightsInSlice],
                     []
                 ),
             emptyMap<number, StateVector[]>()
         )
-    return foo
-}
 
 export const willSwitchLayer = (
     states: StateVector[],
@@ -120,3 +136,8 @@ const layerEq = (layers: AltitudeLayer[]) =>
 
 const inSameLayer = (altitudes: number[], layerSize: number) =>
     layerEq(altitudes.map((alt) => altitudeLayer(alt, layerSize)))
+
+const uniqueFlights = (flights: StateVector[]): StateVector[] => {
+    const seen = new Set<string>()
+    return flights.filter((flight) => added(seen, id(flight).string))
+}

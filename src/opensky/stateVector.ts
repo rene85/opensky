@@ -1,8 +1,10 @@
+import { fromUnixTime } from 'date-fns'
 import { identifier } from '../model/identifier'
 
 export type StateVector = VectorElement[]
 
 type float = number
+type int = number
 
 type VectorElement = boolean | float | string | null
 
@@ -10,6 +12,7 @@ const indices = () => ({
     icao24: 0,
     callsign: 1,
     originCountry: 2,
+    lastContact: 4,
     verticalRate: 11,
     geoAltitude: 13,
 })
@@ -23,6 +26,10 @@ export const callsign = (s: StateVector) =>
 
 export const originCountry = (s: StateVector) =>
     s[indices().originCountry] as string
+
+export const lastContact = (s: StateVector) => s[indices().lastContact] as int
+
+export const lastContactDate = (s: StateVector) => fromUnixTime(lastContact(s))
 
 export const verticalRate = (s: StateVector) =>
     s[indices().verticalRate] as float | null
