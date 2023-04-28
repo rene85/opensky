@@ -1,6 +1,5 @@
 import './App.css'
 
-import { Button } from '@mui/material'
 import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 import {
@@ -18,6 +17,8 @@ import {
 import { sampleOpenSkyResponse } from './assets/sample'
 import { init, withGetAllStatesResponse } from './model/model'
 import { OpenSkyResponse } from './opensky/response'
+import { FlightsPerHourTable } from './view/flightsPerHourTable'
+import { inflateViewmodel } from './viewmodel/viewmodel'
 import { axiosGet } from './wrap/axios'
 
 const interval$ = (updateIntervalMs: number) => {
@@ -62,7 +63,7 @@ function App({ useSample: useSampleData }: App) {
     const DOCUMENT = document
     const UPDATE_INTERVAL_MS = 1000 * 10
 
-    const [model, setModel] = useState(init())
+    const [model, setModel] = useState(inflateViewmodel(init()))
 
     useEffect(() => {
         const model$ = combineLatest([
@@ -80,7 +81,8 @@ function App({ useSample: useSampleData }: App) {
             scan(
                 (model, response) => withGetAllStatesResponse(model, response),
                 init()
-            )
+            ),
+            map(inflateViewmodel)
         )
         const subscription = model$.subscribe({
             next: setModel,
@@ -94,10 +96,7 @@ function App({ useSample: useSampleData }: App) {
 
     return (
         <>
-            <Button variant="contained">Hello World</Button>
-            {model.callsigns.map(([id, callsign]) => (
-                <p key={id.string}>{callsign}</p>
-            ))}
+            <FlightsPerHourTable data={model.flightsPerHour} />
         </>
     )
 }

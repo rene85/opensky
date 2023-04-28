@@ -1,3 +1,5 @@
+import { endOfHour, getTime, startOfHour } from 'date-fns'
+
 interface DateRecord {
     year: number
     month: number
@@ -46,3 +48,12 @@ const fmt = (value: number | undefined, minNumDigits: number): string => {
     const padding = '0'.repeat(Math.max(0, minNumDigits - mag.length))
     return `${sign}${padding}${mag}`
 }
+
+// Start and end are inclusive
+export const hourInterval = (withinHour: Date): Interval => ({
+    start: startOfHour(withinHour),
+    end: endOfHour(withinHour),
+})
+
+export const intervalKey = ({ start, end }: Interval) =>
+    `${getTime(start)}_${getTime(end)}`

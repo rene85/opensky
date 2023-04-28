@@ -2,7 +2,6 @@ import { fromUnixTime, getUnixTime, startOfHour } from 'date-fns'
 import { OpenSkyResponse } from '../opensky/response'
 import {
     StateVector,
-    callsign,
     geoAltitude,
     id,
     lastContactDate,
@@ -14,17 +13,17 @@ import {
     updateOrDefaultMUTATE,
     updateWithDefaultMUTATE,
 } from '../util/map'
-import { Identifier } from './identifier'
 
 type AircraftIdentityString = string
 type OriginCountry = string
 
+// TODO: retain as little data in the model as possible
 export interface Model {
-    callsigns: [Identifier, string | null][]
+    states: StateVector[]
 }
 
 export const init = (): Model => ({
-    callsigns: [],
+    states: [],
 })
 
 // TODO: filter duplicate icao24
@@ -33,7 +32,7 @@ export const withGetAllStatesResponse = (
     response: OpenSkyResponse
 ): Model => ({
     ...m,
-    callsigns: response.states.map((state) => [id(state), callsign(state)]),
+    states: [...m.states, ...response.states],
 })
 
 export const topOriginCountries = (
