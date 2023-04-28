@@ -40,13 +40,8 @@ export const topOriginCountries = (
     states: StateVector[],
     top: number
 ): string[] => {
-    const uniqueAircraft = states.reduce(
-        (uniqueAircraft, aircraft) =>
-            uniqueAircraft.set(id(aircraft).string, aircraft),
-        emptyMap<AircraftIdentityString, StateVector>()
-    )
     const countryCount = emptyMap<OriginCountry, number>()
-    for (const aircraft of uniqueAircraft.values())
+    for (const aircraft of uniqueFlights(states))
         updateOrDefaultMUTATE(
             countryCount,
             originCountry(aircraft),

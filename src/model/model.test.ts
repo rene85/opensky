@@ -43,20 +43,29 @@ describe('show number of flights per timespan', () => {
 })
 
 describe('show top 3 countries of origin', () => {
+    const a1 = ['A', '1', 'JP']
+    const b2 = ['B', '2', 'NL']
+    const e5 = ['E', '5', 'JP']
+
     const states = [
-        ['A', '1', 'JP'],
-        ['B', '2', 'NL'],
+        a1,
+        b2,
         ['C', '3', 'UK'],
         ['D', '4', 'BE'],
-        ['E', '5', 'JP'],
+        e5,
         ['F', '6', 'UK'],
         ['G', '7', 'JP'],
         ['H', '8', 'NL'],
         ['I', '9', 'UK'],
     ]
 
+    const duplicates = [a1, b2, b2, b2, e5]
+
     test('top 3', () =>
         expect(topOriginCountries(states, 3)).to.eql(['JP', 'UK', 'NL']))
+
+    test('count unique flights', () =>
+        expect(topOriginCountries(duplicates, 3)).to.eql(['JP', 'NL']))
 })
 
 describe('show which flights are part of an altitude slice', () => {
