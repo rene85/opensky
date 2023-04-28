@@ -13,6 +13,7 @@ import {
     updateOrDefaultMUTATE,
     updateWithDefaultMUTATE,
 } from '../util/map'
+import { added } from '../util/set.effect'
 
 type AircraftIdentityString = string
 type OriginCountry = string
@@ -72,7 +73,10 @@ export const flightsPerHour = (
         emptyMap<number, StateVector[]>()
     )
     const entries: [Date, StateVector[]][] = Array.from(map).map(
-        ([timestamp, stateVectors]) => [fromUnixTime(timestamp), stateVectors]
+        ([timestamp, stateVectors]) => [
+            fromUnixTime(timestamp),
+            uniqueFlights(stateVectors),
+        ]
     )
     return new Map(entries)
 }
@@ -138,3 +142,8 @@ const layerEq = (layers: AltitudeLayer[]) =>
 
 const inSameLayer = (altitudes: number[], layerSize: number) =>
     layerEq(altitudes.map((alt) => altitudeLayer(alt, layerSize)))
+
+const uniqueFlights = (flights: StateVector[]): StateVector[] => {
+    const seen = new Set<string>()
+    return flights.filter((flight) => added(seen, id(flight).string))
+}

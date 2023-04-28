@@ -18,7 +18,13 @@ describe('show number of flights per timespan', () => {
     const g7 = ['G', '7', 2, 3, getUnixTime(utcDate([2023, 4, 25, 13, 37]))]
     const h8 = ['H', '8', 2, 3, getUnixTime(utcDate([2023, 4, 27, 15, 48]))]
     const i9 = ['I', '9', 2, 3, getUnixTime(utcDate([2023, 1, 16, 8, 32]))]
+
+    const j1early = ['J', '1', 2, 3, getUnixTime(utcDate([2023, 4, 27, 0, 0]))]
+    const j1late = ['J', '1', 2, 3, getUnixTime(utcDate([2023, 4, 27, 1, 0]))]
+
     const states = [a1, b2, c3, d4, e5, f6, g7, h8, i9]
+
+    const duplicates = [j1early, j1early, j1late]
 
     test('per hour', () =>
         expect(Array.from(flightsPerHour(states))).to.eql([
@@ -27,6 +33,12 @@ describe('show number of flights per timespan', () => {
             [utcDate([2023, 4, 27, 15, 0]), [f6, h8]],
             [utcDate([2023, 4, 25, 13, 0]), [g7]],
             [utcDate([2023, 1, 16, 8, 0]), [i9]],
+        ]))
+
+    test('count every flight once per timespan', () =>
+        expect(Array.from(flightsPerHour(duplicates))).to.eql([
+            [utcDate([2023, 4, 27, 0, 0]), [j1early]],
+            [utcDate([2023, 4, 27, 1, 0]), [j1late]],
         ]))
 })
 
