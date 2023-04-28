@@ -17,11 +17,11 @@ import {
 import { sampleOpenSkyResponse } from './assets/sample'
 import { init, withGetAllStatesResponse } from './model/model'
 import { OpenSkyResponse } from './opensky/response'
+import { FlightsPerAltitudeTable } from './view/flightsPerAltitudeTable'
 import { FlightsPerHourTable } from './view/flightsPerHourTable'
 import { TopCountriesOfOrigin } from './view/topCountriesOfOrigin'
 import { inflateViewmodel } from './viewmodel/viewmodel'
 import { axiosGet } from './wrap/axios'
-import { FlightsPerAltitudeTable } from './view/flightsPerAltitudeTable'
 
 const interval$ = (updateIntervalMs: number) => {
     const initialImmediateTick$ = from(['initial'])
@@ -65,7 +65,9 @@ function App({ useSample: useSampleData }: App) {
     const DOCUMENT = document
     const UPDATE_INTERVAL_MS = 1000 * 10
 
-    const [model, setModel] = useState(inflateViewmodel(init()))
+    const inflateOptions = { pollIntervalMs: UPDATE_INTERVAL_MS }
+
+    const [model, setModel] = useState(inflateViewmodel(init(), inflateOptions))
 
     useEffect(() => {
         const model$ = combineLatest([
@@ -84,7 +86,7 @@ function App({ useSample: useSampleData }: App) {
                 (model, response) => withGetAllStatesResponse(model, response),
                 init()
             ),
-            map(inflateViewmodel)
+            map((model) => inflateViewmodel(model, inflateOptions))
         )
         const subscription = model$.subscribe({
             next: setModel,

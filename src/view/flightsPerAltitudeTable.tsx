@@ -5,7 +5,6 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import { StateVector, id } from '../opensky/stateVector'
 
 interface FlightsPerAltitudeTable {
     data: FlightsAtAltitude[]
@@ -13,10 +12,15 @@ interface FlightsPerAltitudeTable {
 
 export interface FlightsAtAltitude {
     altitude: AltitudeLayer
-    flights: StateVector[]
+    flights: Flight[]
 }
 
 type AltitudeLayer = [number, number]
+
+interface Flight {
+    ascentWarning: boolean
+    label: string
+}
 
 const layerKey = ([a, b]: AltitudeLayer) => `${a}_${b}`
 
@@ -39,7 +43,12 @@ export function FlightsPerAltitudeTable({ data }: FlightsPerAltitudeTable) {
                             <TableCell>
                                 <ul>
                                     {row.flights.map((flight) => (
-                                        <li>{id(flight).string}</li>
+                                        <li>
+                                            {flight.label}
+                                            {flight.ascentWarning ? (
+                                                <span>warning</span>
+                                            ) : null}
+                                        </li>
                                     ))}
                                 </ul>
                             </TableCell>
