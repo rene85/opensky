@@ -15,7 +15,6 @@ import {
 } from '../util/map'
 import { added } from '../util/set.effect'
 
-type AircraftIdentityString = string
 type OriginCountry = string
 
 // TODO: retain as little data in the model as possible
