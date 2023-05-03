@@ -5,7 +5,7 @@ import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
 
 @main
-def LiveChart(): Unit =
+def Opensky(): Unit =
     renderOnDomContentLoaded(
       dom.document.getElementById("scala-root"),
       Main.appElement()
