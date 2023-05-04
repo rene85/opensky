@@ -23,6 +23,9 @@ import { TopCountriesOfOrigin } from './view/topCountriesOfOrigin'
 import { inflateViewmodel } from './viewmodel/viewmodel'
 import { axiosGet } from './wrap/axios'
 
+// TODO: get rid of render side effect on import caused by Scala main method
+import { bridge } from 'scalajs:main.js'
+
 const interval$ = (updateIntervalMs: number) => {
     const initialImmediateTick$ = from(['initial'])
     const subsequentTicks$ = interval(updateIntervalMs)
@@ -118,7 +121,10 @@ function App({ useSample: useSampleData }: App) {
             map((model) => inflateViewmodel(model, inflateOptions))
         )
         const subscription = model$.subscribe({
-            next: setModel,
+            next: (model) => {
+                setModel(model)
+                bridge.countriesOfOrigin(model.topCountriesOfOrigin)
+            },
             error: console.error,
         })
 

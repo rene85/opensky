@@ -4,6 +4,11 @@ import org.scalajs.dom
 
 import com.raquo.laminar.api.L.{*, given}
 
+import scala.scalajs.js
+import scala.scalajs.js.annotation.*
+
+val countriesVar = Var(initial = Seq[String]())
+
 @main
 def Opensky(): Unit =
     renderOnDomContentLoaded(
@@ -14,15 +19,22 @@ def Opensky(): Unit =
 object Main:
     def appElement(): Element =
         div(
-          h1("Hello Laminar!"),
-          div(className := "card", counterButton())
+          table(
+            thead(
+              tr(
+                th("Top countries of origin (Scala.js)")
+              )
+            ),
+            tbody(
+              children <-- countriesVar.signal.map(countries =>
+                  countries.map(country => tr(td(country)))
+              )
+            )
+          )
         )
 
-def counterButton(): Element =
-    val counter = Var(0)
-    button(
-      tpe := "button",
-      "count is ",
-      child.text <-- counter,
-      onClick --> { event => counter.update(c => c + 1) }
-    )
+@JSExportTopLevel("bridge")
+object Bridge:
+    @JSExport
+    def countriesOfOrigin(countries: js.Array[String]): Unit =
+        countriesVar.update(_ => countries.toSeq)
