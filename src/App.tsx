@@ -128,11 +128,11 @@ function App({ useSample: useSampleData }: App) {
     }, [])
 
     return (
-        <>
+        <div className="grid grid-cols-3 gap-4">
             <FlightsPerHourTable data={model.flightsPerHour} />
             <TopCountriesOfOrigin countries={model.topCountriesOfOrigin} />
             <FlightsPerAltitudeTable data={model.flightsAtAltitude} />
-        </>
+        </div>
     )
 }
 
