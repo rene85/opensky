@@ -43,7 +43,7 @@ export function FlightsPerAltitudeTable({ data }: FlightsPerAltitudeTable) {
                             <TableCell>
                                 <ul>
                                     {row.flights.map((flight) => (
-                                        <li>
+                                        <li key={flight.label}>
                                             {flight.label}
                                             {flight.ascentWarning ? (
                                                 <span>warning</span>
