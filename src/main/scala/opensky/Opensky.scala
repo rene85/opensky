@@ -18,19 +18,21 @@ def Opensky(): Unit =
 
 object Main:
     def appElement(): Element =
-        div(
-          table(
-            thead(
+        div(cls:="grid grid-cols-3 gap-4 m-4",
+        div(cls:="border-solid border-2 border-indigo-100 rounded-lg",
+          table(cls:="border-collapse w-full",
+            thead(cls:="bg-indigo-100",
               tr(
                 th("Top countries of origin (Scala.js)")
               )
             ),
             tbody(
               children <-- countriesVar.signal.map(countries =>
-                  countries.map(country => tr(td(country)))
+                  countries.map(country => tr(cls:="border-t border-indigo-100",td(cls:="p-2",country)))
               )
             )
           )
+        )
         )
 
 @JSExportTopLevel("bridge")
